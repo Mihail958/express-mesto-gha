@@ -50,53 +50,36 @@ module.exports.createUser = (req, res) => {
 };
 
 module.exports.updateProfile = (req, res) => {
-  const { name, about } = req.body;
-
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, about },
-    { new: true, runValidators: true }
-  )
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        res
-          .status(400)
-          .send({
-            message: `Попытка использования некорректных данных при обновлении профиля -- ${err.name}`,
-          });
-      } else if (err.message === "NotFound") {
-        res
-          .status(404)
-          .send({ message: "По указанному id пользователь не найден" });
-      } else {
-        res.status(500).send({ message: "Ошибка на стороне сервера." });
-      }
-    });
+    const { name, about } = req.body;
+    user.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+      .then((updatedUser) => {
+        if (!updatedUser) {
+          return res.status(404).send({ message: 'Пользователь отсутствует' });
+        }
+        res.send(updatedUser);
+      })
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          return res.status(400).send({ message: 'Переданы некорректные данные' });
+        }
+        res.status(500).send({ message: 'Серверная ошибка' });
+      });
 };
 
 module.exports.updateAvatar = (req, res) => {
-  const { avatar } = req.body;
-
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
-    { new: true, runValidators: true }
-  )
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      if (err.name === "ValidationError" || err.name === "CastError") {
-        res
-          .status(400)
-          .send({
-            message: `Попытка использования некорректных данных при обновлении аватара -- ${err.name}`,
-          });
-      } else if (err.message === "NotFound") {
-        res
-          .status(404)
-          .send({ message: "По указанному id пользователь не найден" });
-      } else {
-        res.status(404).send({ message: "Ошибка на стороне сервера." });
-      }
-    });
+    const { avatar } = req.body;
+    user.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+      .then((userAvatar) => {
+        if (!userAvatar) {
+          return res.status(404).send({ message: 'Пользователь отсутствует' });
+        }
+        res.send(userAvatar);
+      })
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          return res.status(400).send({ message: 'Переданы некорректные данные' });
+        }
+        res.status(500).send({ message: 'Серверная ошибка' });
+      });
 };
+
