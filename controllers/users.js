@@ -51,35 +51,83 @@ module.exports.createUser = (req, res) => {
 
 module.exports.updateProfile = (req, res) => {
     const { name, about } = req.body;
-    user.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-      .then((updatedUser) => {
-        if (!updatedUser) {
-          return res.status(404).send({ message: 'Пользователь отсутствует' });
+    const userId = req.user._id;
+    User.findByIdAndUpdate(
+      userId,
+      { name, about },
+      {
+        new: true,
+        runValidators: true,
+      },
+    )
+      .then((user) => {
+        if (user != null) {
+          res.send({ data: user });
+        } else {
+          const error = new Error(
+            `Пользователь по указанному _id: ${userId} не найден.`,
+          );
+          error.name = 'UserNotFound';
+          throw error;
         }
-        res.send(updatedUser);
       })
       .catch((err) => {
-        if (err.name === 'ValidationError') {
-          return res.status(400).send({ message: 'Переданы некорректные данные' });
+        if (err.name === 'UserNotFound') {
+          res.status(404).send({
+            message: `${err.message}`,
+          });
+          return;
         }
-        res.status(500).send({ message: 'Серверная ошибка' });
+        if (err.name === 'ValidationError') {
+          res.status(400).send({
+            message: 'Переданы некорректные данные при обновлении профиля',
+          });
+          return;
+        }
+        res
+          .status(500)
+          .send({ message: 'Произошла ошибка при изменении профиля' });
       });
-};
-
-module.exports.updateAvatar = (req, res) => {
+  };
+  
+  module.exports.updateAvatar = (req, res) => {
     const { avatar } = req.body;
-    user.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-      .then((userAvatar) => {
-        if (!userAvatar) {
-          return res.status(404).send({ message: 'Пользователь отсутствует' });
+    const userId = req.user._id;
+    User.findByIdAndUpdate(
+      userId,
+      { avatar },
+      {
+        new: true,
+        runValidators: true,
+      },
+    )
+      .then((user) => {
+        if (user != null) {
+          res.send({ data: user });
+        } else {
+          const error = new Error(
+            `Пользователь по указанному _id: ${userId} не найден.`,
+          );
+          error.name = 'UserNotFound';
+          throw error;
         }
-        res.send(userAvatar);
       })
       .catch((err) => {
-        if (err.name === 'ValidationError') {
-          return res.status(400).send({ message: 'Переданы некорректные данные' });
+        if (err.name === 'UserNotFound') {
+          res.status(404).send({
+            message: `${err.message}`,
+          });
+          return;
         }
-        res.status(500).send({ message: 'Серверная ошибка' });
+        if (err.name === 'ValidationError') {
+          res.status(400).send({
+            message: 'Переданы некорректные данные при обновлении аватара',
+          });
+          return;
+        }
+        res
+          .status(500)
+          .send({ message: 'Произошла ошибка при изменении аватара' });
       });
-};
+  };
 
