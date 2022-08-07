@@ -11,6 +11,14 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: '62ef9d2256f5d69128e6fc61' 
+  };
+
+  next();
+}); 
+
 app.use(routesUsers);
 app.use(routesCards);
 
@@ -19,16 +27,9 @@ app.use((req, res) => {
 });
 
 mongoose.connect('mongodb://localhost:27017/mestodb ', {
-  // useNewUrlParser: true
+   useNewUrlParser: true
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '62ef9d2256f5d69128e6fc61' 
-  };
-
-  next();
-}); 
 
 app.listen(PORT, () => {
   console.log(`Рабочий порт: ${PORT}`);
