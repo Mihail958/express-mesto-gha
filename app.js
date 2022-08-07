@@ -19,7 +19,7 @@ app.use((req, res) => {
 });
 
 mongoose.connect('mongodb://localhost:27017/mestodb ', {
-  useNewUrlParser: true
+  // useNewUrlParser: true
 });
 
 app.use((req, res, next) => {
