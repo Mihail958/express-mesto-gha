@@ -57,7 +57,6 @@ module.exports.updateProfile = (req, res) => {
     { name, about },
     { new: true, runValidators: true }
   )
-    .orFail(() => new Error("NotFound"))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === "ValidationError" || err.name === "CastError") {
@@ -84,7 +83,6 @@ module.exports.updateAvatar = (req, res) => {
     { avatar },
     { new: true, runValidators: true }
   )
-    .orFail(() => new Error("NotFound"))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === "ValidationError" || err.name === "CastError") {
