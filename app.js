@@ -2,13 +2,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const routesUsers = require('./routes/users');
 const routesCards = require('./routes/cards');
+const bodyParser = require('body-parser');
 
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(routesUsers);
 app.use(routesCards);
