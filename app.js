@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const routesUsers = require('./routes/users');
 const routesCards = require('./routes/cards');
+const statusCodes = require('./utils/statusCodes');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -21,7 +22,7 @@ app.use(routesUsers);
 app.use(routesCards);
 
 app.use((req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+  res.status(statusCodes.ERROR_CODE_404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
