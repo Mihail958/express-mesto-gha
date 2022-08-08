@@ -55,13 +55,13 @@ module.exports.updateProfile = (req, res) => {
       if (!updatedUser) {
         return res.status(statusCodes.ERROR_CODE_404).send({ message: 'Пользователь отсутствует' });
       }
-      res.send(updatedUser);
+      return res.send(updatedUser);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(statusCodes.ERROR_CODE_400).send({ message: 'Переданы некорректные данные' });
       }
-      res.status(statusCodes.ERROR_CODE_500).send({ message: 'Серверная ошибка' });
+      return res.status(statusCodes.ERROR_CODE_500).send({ message: 'Серверная ошибка' });
     });
 };
 
@@ -72,12 +72,12 @@ module.exports.updateAvatar = (req, res) => {
       if (!userAvatar) {
         return res.status(statusCodes.ERROR_CODE_404).send({ message: 'Пользователь отсутствует' });
       }
-      res.send(userAvatar);
+      return res.send(userAvatar);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(statusCodes.ERROR_CODE_400).send({ message: 'Переданы некорректные данные' });
       }
-      res.status(statusCodes.ERROR_CODE_500).send({ message: 'Серверная ошибка' });
+      return res.status(statusCodes.ERROR_CODE_500).send({ message: 'Серверная ошибка' });
     });
 };
