@@ -1,4 +1,3 @@
-const validator = require('validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
@@ -42,26 +41,38 @@ module.exports.getUserById = (req, res, next) => {
 
 module.exports.createUser = (req, res, next) => {
   const {
-    name, about, avatar, email, password,
+    name,
+    about,
+    avatar,
+    email,
+    password,
   } = req.body;
 
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
-    }))
+  User.findOne({ email })
     .then((user) => {
-      if (validator.isEmail(email)) {
-        res.status(200).send(user);
+      if (user) {
+        next(new Conflict(`Пользователь с таким email ${email} уже зарегистрирован`));
       }
+      return bcrypt.hash(password, 10);
+    })
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+    .then((user) => User.findOne({ _id: user._id })) // убираем пароль
+    .then((user) => {
+      res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new BadRequest(`Переданы некорректные данные при создании пользователя -- ${err.name}`));
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Переданы некорректные данные.'));
       } else if (err.code === 11000) {
-        next(new Conflict('Пользователь с таким email уже зарегистрирован'));
+        next(new Conflict({ message: err.errorMessage }));
       } else {
-        next(new InternalServerError('Ошибка по умолчанию.'));
+        next(err);
       }
     });
 };
