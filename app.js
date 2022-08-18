@@ -6,6 +6,7 @@ const routesCards = require('./routes/cards');
 const NotFound = require('./errors/NotFound');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const { registerValid, loginValid } = require('./middlewares/joi');
 
 const { PORT = 3000 } = process.env;
 
@@ -15,12 +16,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // логин
-app.post('/signin', login);
+app.post('/signin', loginValid, login);
 
 // регистрация
-app.post('/signup', createUser);
+app.post('/signup', registerValid, createUser);
 
 app.use(auth);
+
+// роуты защищенные авторизацией
 app.use('/cards', require('./routes/cards'));
 
 app.use(routesUsers);

@@ -78,7 +78,7 @@ module.exports.login = (req, res, next) => {
       res.status(200).send({ message: 'Регистрация прошла успешно!' });
     })
     .catch(() => {
-      next(new Unauthorized('Требуется авторизация'));
+      next(new Unauthorized('Необходима авторизация'));
     });
 };
 
