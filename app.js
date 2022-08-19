@@ -35,6 +35,12 @@ app.use(() => {
 
 app.use(errors());
 
+app.use((err, req, res, next) => {
+  const status = err.statusCode || 500;
+  res.status(status).send({ err });
+  next();
+});
+
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
 });
