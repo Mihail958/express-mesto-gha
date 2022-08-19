@@ -43,6 +43,9 @@ module.exports.createUser = (req, res, next) => {
 
   bcrypt
     .then((user) => User.findOne({ _id: user._id })) // прячет пароль
+    .then((user) => {
+      res.status(200).send(user);
+    })
     .hash(password, 10)
     .then((hash) => createUser(hash))
     .then((user) => {
