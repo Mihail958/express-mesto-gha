@@ -18,7 +18,12 @@ module.exports.getUserById = (req, res, next) => {
     .orFail(() => {
       throw new NotFound('Пользователь не найден');
     })
-    .then((user) => res.status(200).send(user))
+    .then((user) => {
+      if (!user._id) {
+        next(new NotFound('Пользователь не найден'));
+      }
+      res.status(200).send(user);
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные.'));
@@ -30,37 +35,38 @@ module.exports.getUserById = (req, res, next) => {
 
 module.exports.createUser = (req, res, next) => {
   const {
-    name, about, avatar, email, password,
-  } = req.body;
-
-  const createUser = (hash) => User.create({
     name,
     about,
     avatar,
     email,
-    password: hash,
-  });
+    password,
+  } = req.body;
 
-  bcrypt
-    .then((user) => User.findOne({ _id: user._id })) // прячет пароль
+  User.findOne({ email })
+    // eslint-disable-next-line consistent-return
+    .then((user) => {
+      if (user) {
+        next(new Conflict(`Пользователь с таким email ${email} уже зарегистрирован`));
+      } else { return bcrypt.hash(password, 10); }
+    })
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+    .then((user) => User.findOne({ _id: user._id })) // убираем пароль
     .then((user) => {
       res.status(200).send(user);
     })
-    .hash(password, 10)
-    .then((hash) => createUser(hash))
-    .then((user) => {
-      const { _id } = user;
-      res.send({
-        _id,
-        name,
-        about,
-        avatar,
-        email,
-      });
-    })
     .catch((err) => {
-      if (err.code === 11000) {
-        next(new Conflict('Пользователь с данным email уже существует'));
+      if (err.name === 'BadRequest') {
+        next(new BadRequest('Переданы некорректные данные.'));
+      } else if (err.code === 11000) {
+        next(new Conflict({ message: err.errorMessage }));
+      } else {
+        next(err);
       }
     });
 };
@@ -138,7 +144,7 @@ module.exports.getCurrentUser = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'BadRequest') {
+      if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные.'));
       } else {
         next(err);
