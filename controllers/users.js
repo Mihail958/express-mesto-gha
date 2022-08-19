@@ -135,7 +135,7 @@ module.exports.getCurrentUser = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'BadRequest') {
         next(new BadRequest('Переданы некорректные данные.'));
       } else {
         next(err);
