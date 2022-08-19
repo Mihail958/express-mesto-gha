@@ -1,6 +1,7 @@
 const Cards = require('../models/card');
 const NotFound = require('../errors/NotFound');
 const BadRequest = require('../errors/BadRequest');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getAllCards = (req, res, next) => {
   Cards.find({})
@@ -15,34 +16,28 @@ module.exports.createCard = (req, res, next) => {
     .then((card) => {
       if (!card) {
         next(new BadRequest('Переданы некорректные данные'));
-      }
-      res.status(200).send({ data: card });
+      } else { res.status(200).send({ data: card }); }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'BadRequest') {
         next(new BadRequest({ message: err.errorMessage }));
-      }
-      next(err);
+      } else { next(err); }
     });
 };
 
 module.exports.deleteCardById = (req, res, next) => {
-  Cards.findByIdAndRemove(req.params.cardId)
-    .orFail(() => {
-      throw new NotFound('Карточка по указанному id не найдена');
-    })
+  Cards.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        next(new NotFound('Карточка по указанному id не найдена'));
+        throw new NotFound('Карточка с указанным id не найдена');
       }
-      res.status(200).send({ data: card, message: 'Карточка удалена' });
+      if (card.owner._id.toString() !== req.user._id.toString()) {
+        throw new ForbiddenError('Вы не можете удалить чужую карточку');
+      }
+      card.remove();
+      res.status(200).send({ data: card, message: 'Карточка успешно удалена' });
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest({ message: 'Переданы некорректные данные' }));
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports.likeCard = (req, res, next) => {
@@ -55,16 +50,12 @@ module.exports.likeCard = (req, res, next) => {
       throw new NotFound('Карточка по указанному id не найдена');
     })
     .then((card) => {
-      if (!card) {
-        next(new NotFound('Карточка по указанному id не найдена'));
-      }
       res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'BadRequest') {
         next(new BadRequest({ message: err.errorMessage }));
-      }
-      next(err);
+      } else { next(err); }
     });
 };
 
@@ -74,15 +65,11 @@ module.exports.dislikeCard = (req, res, next) => {
       throw new NotFound('Карточка не найдена');
     })
     .then((card) => {
-      if (!card) {
-        next(new NotFound('Карточка не найдена'));
-      }
       res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'BadRequest') {
         next(new BadRequest({ message: 'Переданы некорректные данные' }));
-      }
-      next(err);
+      } else { next(err); }
     });
 };
