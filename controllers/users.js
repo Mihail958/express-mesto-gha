@@ -8,15 +8,9 @@ const NotFound = require('../errors/NotFound');
 const InternalServerError = require('../errors/InternalServerError');
 
 module.exports.getAllUsers = (req, res, next) => {
-  User
-    .find({})
-    .then((users) => {
-      if (!users) {
-        throw new InternalServerError('Ошибка по умолчанию.');
-      }
-      res.status(200).send(users);
-    })
-    .catch(next);
+  User.find({})
+    .then((user) => res.status(200).send(user))
+    .catch((err) => next(err));
 };
 
 module.exports.getUserById = (req, res, next) => {
@@ -24,12 +18,7 @@ module.exports.getUserById = (req, res, next) => {
     .orFail(() => {
       throw new NotFound('Пользователь не найден');
     })
-    .then((user) => {
-      if (!user._id) {
-        next(new NotFound('Пользователь не найден'));
-      }
-      res.status(200).send(user);
-    })
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные.'));
@@ -41,38 +30,34 @@ module.exports.getUserById = (req, res, next) => {
 
 module.exports.createUser = (req, res, next) => {
   const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  const createUser = (hash) => User.create({
     name,
     about,
     avatar,
     email,
-    password,
-  } = req.body;
+    password: hash,
+  });
 
-  User.findOne({ email })
+  bcrypt
+    .then((user) => User.findOne({ _id: user._id })) // прячет пароль
+    .hash(password, 10)
+    .then((hash) => createUser(hash))
     .then((user) => {
-      if (user) {
-        next(new Conflict(`Пользователь с таким email ${email} уже зарегистрирован`));
-      }
-      return bcrypt.hash(password, 10);
-    })
-    .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
-    .then((user) => User.findOne({ _id: user._id })) // убираем пароль
-    .then((user) => {
-      res.status(200).send(user);
+      const { _id } = user;
+      res.send({
+        _id,
+        name,
+        about,
+        avatar,
+        email,
+      });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequest('Переданы некорректные данные.'));
-      } else if (err.code === 11000) {
-        next(new Conflict({ message: err.errorMessage }));
-      } else {
-        next(err);
+      if (err.code === 11000) {
+        next(new Conflict('Пользователь с данным email уже существует'));
       }
     });
 };
