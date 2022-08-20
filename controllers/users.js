@@ -19,13 +19,10 @@ module.exports.getUserById = (req, res, next) => {
       throw new NotFound('Пользователь не найден');
     })
     .then((user) => {
-      if (!user._id) {
-        next(new NotFound('Пользователь не найден'));
-      }
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'BadRequest') {
+      if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные.'));
       } else {
         next(err);
@@ -61,7 +58,7 @@ module.exports.createUser = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'BadRequest') {
+      if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные.'));
       } else if (err.code === 11000) {
         next(new Conflict({ message: err.errorMessage }));
@@ -125,9 +122,9 @@ module.exports.updateAvatar = (req, res, next) => {
     })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'BadRequest') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequest(`Переданы некорректные данные при обновлении профиля -- ${err.name}`));
-      } else if (err.message === 'NotFound') {
+      } else if (err.message === 'ValidationError ') {
         next(new NotFound('Пользователь с указанным _id не найден'));
       } else {
         next(new InternalServerError('Ошибка по умолчанию.'));
@@ -141,7 +138,7 @@ module.exports.getCurrentUser = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'BadRequest') {
+      if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные.'));
       } else {
         next(err);
