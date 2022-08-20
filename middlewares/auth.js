@@ -7,17 +7,20 @@ module.exports = (req, res, next) => {
   if (!authorization || !authorization.startsWith('Bearer ')) {
     next(new Unauthorized('Необходима авторизация'));
   }
-  const token = String(req.headers.authorization).replace('Bearer ', '');
+  return;
 
+  // eslint-disable-next-line no-unreachable
+  const token = authorization.replace('Bearer ', '');
   let payload;
 
   try {
-    // попытаемся верифицировать токен
     payload = jwt.verify(token, 'some-secret-key');
   } catch (err) {
-    // отправим ошибку, если не получилось
-    return next(new Unauthorized('Необходима авторизация'));
+    // eslint-disable-next-line consistent-return
+    return new Unauthorized('Необходима авторизация');
   }
+
   req.user = payload;
-  return next();
+
+  next();
 };
