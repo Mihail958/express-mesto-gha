@@ -28,3 +28,5 @@
 `npm run dev` — запускает сервер с hot-reload
 
 https://github.com/Mihail958/express-mesto-gha.git
+
+## Приятного использования
