@@ -1,32 +1,62 @@
-[![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml) [![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
-# Проект Mesto фронтенд + бэкенд
+# Mestro 
+Данный учебный проект создан в рамках прохождения 4-14 спринтов курса Веб-разработчик от [Яндекс.Практикум](https://practicum.yandex.ru/web/).
 
+## Цели данной работы: 
 
+ Закрепить на практике пройденный учебный материал, в который входят:
+- Взаимодействие с Express и MongoDB;
+- Описания схем и моделей;
+- Описания контроллеров и роутов;
+- CORS. Обработка ошибок.
 
-## Настройка бейджей статуса тестов
-Перед началом работы над проектом рекомендуется исправить бейджи, отражающие статус прохождения тестов.
-Для этого замените разметку бейджей на следующий фрагмент, подставив вместо `${имя_пользователя}` и `${имя_репозитория}` соответствующие значения.
+## Функционал:
+- Роуты для пользователей:
+  - GET /users — возвращает всех пользователей из базы;
+  - GET /users/:userId — возвращает пользователя по _id;
+  - POST /users — создаёт пользователя с переданными в теле запроса name, about и avatar.
 
-```
-[![Tests for sprint 13](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-13-sprint.yml) 
+- Роуты для карточек:
+  - GET /cards — возвращает все карточки из базы;
+  - POST /cards — создаёт карточку с переданными в теле запроса name и link, устанавливает поле owner для карточки;
+  - DELETE /cards/:cardId — удаляет карточку по _id.
 
-[![Tests for sprint 14](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-14-sprint.yml)
-```
-
+## Стек технологий:
+- JavaScript:
+  - Промисы (Promise);
+  - Асинхронность и оптимизация;
+  - Rest API;
+- Node.js;
+- Express;
+- MongoDB.
 
 ## Директории
+* `/controllers` – содержит файлы описания моделей пользователя и карточки;
+* `/models` – содержит файлы описания схем пользователя и карточки;
+* `/routes` — содержит описание основных роутов для пользователя и карточки;
+* `/errors` – содержит описание ошибок.
 
-`/routes` — папка с файлами роутера  
-`/controllers` — папка с файлами контроллеров пользователя и карточки   
-`/models` — папка с файлами описания схем пользователя и карточки  
-  
-Остальные директории вспомогательные, создаются при необходимости разработчиком
+## Установка и запуск проекта:
+Клонировать репозиторий:
 
-## Запуск проекта
+    git clone https://github.com/Mihail958/express-mesto-gha.git
 
-`npm run start` — запускает сервер   
-`npm run dev` — запускает сервер с hot-reload
+Установить зависимости:
 
-https://github.com/Mihail958/express-mesto-gha.git
+    npm install
 
-## Приятного использования
+Запустить сервер:
+
+    npm run start
+
+Запустить сервер с hot-reload:
+
+    npm run dev
+
+## Языки:
+- JavaScript
+
+## Библиотеки:
+- Express
+
+## База данных:
+- MongoDB
